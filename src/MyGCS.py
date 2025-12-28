@@ -17,7 +17,7 @@ class GCS(object):
             gcs_solver,
             max_step_len=0.4,
             swing_order=[0,3,1,2],
-            bridge_stone_wh=[0.01,0.01],
+            bridge_stone_wh=None,
             bridge_x_shift=0, 
             copy_vertex_count=6,
             convex_relaxation=True, 
@@ -28,7 +28,8 @@ class GCS(object):
             gcs_print_console=False,
             mosek_tol_pfeas=1e-4,
             mosek_tol_dfeas=1e-4,
-            mosek_tol_rel_gap=1e-3, 
+            mosek_tol_rel_gap=1e-3,
+            erase_index=None
         ):
 
         self.terrain = terrain
@@ -50,7 +51,9 @@ class GCS(object):
         self.mosek_tol_pfeas = mosek_tol_pfeas
         self.mosek_tol_dfeas = mosek_tol_dfeas
         self.mosek_tol_rel_gap = mosek_tol_rel_gap
-
+        if not bridge_stone_wh:
+            self.bridge_stone_wh = terrain.bridge_stone_wh
+            
 
         # create a terrain for planning
         # shring the stepping stones for safe foot placement
@@ -61,13 +64,16 @@ class GCS(object):
             target_wh=terrain.target_wh,
             num_bridges_y=terrain.num_bridges_y,
             num_stones_in_bridge=terrain.num_stones_in_bridge,
-            bridge_stone_wh=bridge_stone_wh,
+            bridge_stone_wh=self.bridge_stone_wh,
             bridges_dist_y=terrain.bridges_dist_y,
             bridges_centerline_y=terrain.bridges_centerline_y,
             rand_radius=terrain.rand_radius,
             bridge_x_shift=self.bridge_x_shift,
             rand_seed=terrain.rand_seed,
         )
+
+        if erase_index is not None:
+            self.terrain_gcs.erase_bridge_stone(erase_index)
 
         # ideal poses
         # inital stone
@@ -79,6 +85,7 @@ class GCS(object):
 
         GCS = GraphOfConvexSets()
 
+        print('GCS: creating edge list while pruning... this may take a while if number of stones > 10')
         GCS, V, E_list, vertex_map = self.add_vertex_and_edges_for_set_copies(
             GCS, 
             self.terrain_gcs, 
@@ -131,6 +138,7 @@ class GCS(object):
 
         if not result.is_success():
             print("GCS failed to find a path.")
+            self.terrain_gcs.plot()
             return None, None, None, None, 0
 
         print("GCS successful. Extracting path...")
@@ -145,7 +153,7 @@ class GCS(object):
         pos_fl, pos_fr, pos_rl, pos_rr = self.footstep2position(path_position)
 
         animate_footstep_plan_gcs(
-            self.terrain_gcs, 
+            self.terrain, 
             pos_fl, 
             pos_fr, 
             pos_rl, 
@@ -184,18 +192,18 @@ class GCS(object):
                         
                         # long axis
                         # fl - rl
-                        if stones[fl].min_dist(stones[rl]) >= x_max:
+                        if stones[fl].rear_end_x - stones[rl].front_end_x >= x_max:
                             continue
                         # fr - rr
-                        if stones[fr].min_dist(stones[rr]) >= x_max:
+                        if stones[fr].rear_end_x - stones[rr].front_end_x >= x_max:
                             continue
 
                         # short axis
                         # fl - fr
-                        if stones[fl].min_dist(stones[fr]) >= y_max:
+                        if stones[fl].down_end_y - stones[fr].top_end_y >= y_max:
                             continue
                         # rl - rr
-                        if stones[rl].min_dist(stones[rr]) >= y_max:
+                        if stones[rl].down_end_y - stones[rr].top_end_y >= y_max:
                             continue
                             
                         # leg crossing front

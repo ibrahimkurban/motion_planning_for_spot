@@ -28,6 +28,11 @@ class SteppingStone(object):
         self.top_left = center - c2br
         self.bottom_left = center - c2tr
         self.corners = [self.top_right, self.bottom_right, self.top_left, self.bottom_left]
+        self.rear_end_x = self.center[0] - self.width/2
+        self.front_end_x = self.center[0] + self.width/2
+        self.top_end_y = self.center[1] + self.height/2
+        self.down_end_y = self.center[1] - self.height/2
+
 
         # halfspace representation of the stepping stone
         self.A = np.array([[1, 0], [0, 1], [-1, 0], [0, -1]])
