@@ -2,19 +2,18 @@
 
 This repository implements a motion planning and control framework for the Boston Dynamics Spot robot using **Drake**. It focuses on dynamic locomotion over complex, non-convex terrain (stepping stones) using **Graph of Convex Sets (GCS)** for footstep planning and trajectory optimization for full-body control.
 
-## 🎥 Capabilities & Demos
 
-### 1. Robust Footstep Planning (`demo_gcs.ipynb`)
-Uses **Graph of Convex Sets (GCS)** to solve the combinatorial problem of choosing footstep locations across a randomized field of "stepping stones" (bridges).
-* **Terrain Generation**: Procedurally generates stepping stone environments with configurable gaps and bridges.
-* **GCS Optimization**: Formulates the footstep planning problem as a shortest-path problem on a graph where edges contain convex constraints (valid kinematic regions).
-* **Mosek Solver**: Uses Mosek to efficiently solve the resulting convex optimization problem.
-
-### 2. End-to-End Simulation (`demo_main.ipynb`)
+### 1. End-to-End Simulation (`demo_main.ipynb`)
 The primary entry point that combines terrain generation, planning, and simulation.
 * **Pipeline**: Terrain -> GCS Footstep Plan -> Trajectory Generation -> Stabilization.
 * **Simulation**: Runs a full physics simulation of Spot traversing the generated terrain.
 * **Visualization**: Uses **Meshcat** for real-time 3D visualization of the robot and environment.
+
+### 2. Robust Footstep Planning (`demo_gcs.ipynb`)
+Uses **Graph of Convex Sets (GCS)** to solve the combinatorial problem of choosing footstep locations across a randomized field of "stepping stones" (bridges).
+* **Terrain Generation**: Procedurally generates stepping stone environments with configurable gaps and bridges.
+* **GCS Optimization**: Formulates the footstep planning problem as a shortest-path problem on a graph where edges contain convex constraints (valid kinematic regions).
+* **Mosek Solver**: Uses Mosek to efficiently solve the resulting convex optimization problem.
 
 ### 3. Trajectory Optimization (`demo_trajopt_self_contained.ipynb`)
 A standalone demonstration of low-level trajectory optimization constraints.
@@ -31,7 +30,6 @@ A standalone demonstration of low-level trajectory optimization constraints.
 * `models/`: URDF and mesh files for Spot and the environment.
 * `utils/`: Helper functions for plotting, URDF loading, and trajectory math.
 
-## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -71,11 +69,7 @@ A standalone demonstration of low-level trajectory optimization constraints.
     * Click the link printed in the output (e.g., `http://localhost:7000`) to view the visualizer.
     * Run subsequent cells to generate the terrain, plan the footsteps, and simulate the motion.
 
-## 🛠️ Solvers
 
 * **Mosek**: Used for the Mixed-Integer Convex Optimization / GCS footstep planning.
 * **SNOPT / IPOPT**: Used for non-linear trajectory optimization tasks within Drake.
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
